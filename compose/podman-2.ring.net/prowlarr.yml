@@ -1,0 +1,20 @@
+services:
+  # Prowlarr - Index Manager
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    profiles: ["media", "starr", "all"]
+    networks:
+      - default
+    ports:
+      - "9696:9696"
+    volumes:
+      - $DOCKERDIR/appdata/prowlarr:/config
+    environment:
+      TZ: $TZ
+      PUID: $PUID
+      PGID: $PGID
+    # DOCKER-LABELS-PLACEHOLDER

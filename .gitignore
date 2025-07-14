@@ -1,0 +1,5 @@
+# Ignore all files in the appdata directory
+# This is a Podman configuration directory for Ring
+# It contains application data that should not be tracked by Git
+*/appdata/*
+appdata/*

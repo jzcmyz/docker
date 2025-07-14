@@ -1,0 +1,19 @@
+services:
+  nzbget:
+    image: nzbgetcom/nzbget:latest
+    container_name: nzbget
+    profiles: ["media", "downloads", "all"]
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: $TZ
+      NZBGET_USER: nzbget     #optional
+      NZBGET_PASS: tegbzn6789 #optional
+    volumes:
+      - $DOCKERDIR/appdata/nzbget:/config
+      - media_movies_rw:/movies
+      - media_tvshows_rw:/tv 
+      #- /path/to/downloads:/downloads #optional
+    ports:
+      - 6789:6789
+    restart: unless-stopped

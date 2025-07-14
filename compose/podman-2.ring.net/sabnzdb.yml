@@ -1,0 +1,26 @@
+
+services:
+  # SABnzbd - Binary newsgrabber (NZB downloader)
+  # Disable SABNnzbd's built-in HTTPS support for traefik proxy to work
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzdb
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    profiles: ["media", "downloads", "all"]
+    networks:
+      - default
+    ports:
+      - "8080:8080" 
+    volumes:
+      - $DOCKERDIR/appdata/sabnzbd:/config
+      #- media_downloads_rw:/downloads
+      - media_movies_rw:/movies
+      - media_tvshows_rw:/tv 
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: $TZ
+      UMASK_SET: 002
+    # DOCKER-LABELS-PLACEHOLDER
