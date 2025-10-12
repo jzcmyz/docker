@@ -32,4 +32,5 @@ include:
   - compose/$HOSTNAME/profilarr.yml
   - compose/$HOSTNAME/nzbget.yml
   - compose/$HOSTNAME/netbootxyz.yml
+  - compose/$HOSTNAME/portainer.yml
 
