@@ -11,16 +11,39 @@ services:
     profiles: ["media", "downloads", "all"]
     networks:
       - default
+      - t3_proxy
     ports:
       - "8080:8080" 
     volumes:
       - $DOCKERDIR/appdata/sabnzbd:/config
-      #- media_downloads_rw:/downloads
       - media_movies_rw:/movies
       - media_tvshows_rw:/tv 
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: $TZ
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
       UMASK_SET: 002
-    # DOCKER-LABELS-PLACEHOLDER
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.entrypoints=web-internal"
+      - "traefik.http.routers.portainer.rule=Host(`sabnzdb.$DOMAINNAME_1`)"
+      - "traefik.http.routers.portainer.service=sabnzbd"
+      - "traefik.http.routers.portainer.tls.certresolver=dns-cloudflare"
+      - "traefik.http.services.portainer.loadbalancer.server.port=8080"
+
+volumes:
+  media_movies_rw:
+    name: media_movies_rw
+    driver: local
+    driver_opts:
+      type: "nfs"
+      o: "nolock,soft,rw"
+      device: "192.168.1.112:/mnt/datastore/media/Movies"
+
+  media_tvshows_rw:
+    name: media_tvshows_rw
+    driver: local
+    driver_opts:
+      type: "nfs"
+      o: "nolock,soft,rw"
+      device: "192.168.1.112:/mnt/datastore/media/TV Shows"

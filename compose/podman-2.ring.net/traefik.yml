@@ -1,0 +1,42 @@
+services:
+  # Traefik 3 - Reverse Proxy
+  traefik:
+    container_name: traefik
+    image: traefik:3.5.3
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    profiles: ["core", "traefik", "all"]
+    depends_on:
+      - socket-proxy
+    networks:
+      t3_proxy:
+        ipv4_address: 192.168.90.254 # You can specify a static IP
+      socket_proxy:
+
+    ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+      - "444:444"
+      - "$TRAEFIK_PORT:9080"
+    volumes:
+      - $DOCKERDIR/appdata/traefik/rules/$HOSTNAME:/rules 
+      # - /var/run/docker.sock:/var/run/docker.sock:ro # Use Docker Socket Proxy instead for improved security
+      - $DOCKERDIR/appdata/traefik/acme/acme.json:/acme.json 
+      - $DOCKERDIR/appdata/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - $DOCKERDIR/logs/$HOSTNAME/traefik:/logs
+    environment:
+      - TZ=${TZ}
+      - CF_DNS_API_TOKEN_FILE=/run/secrets/cf_dns_api_token    
+      - HTPASSWD_FILE=/run/secrets/basic_auth_credentials # HTTP Basic Auth Credentials
+      - DOMAINNAME_1 # Passing the domain name to traefik container to be able to use the variable in rules. 
+    secrets:
+      - cf_dns_api_token
+      - basic_auth_credentials
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik-rtr.entrypoints=websecure-internal,websecure-external"
+      - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$DOMAINNAME_1`)"
+      - "traefik.http.routers.traefik-rtr.service=api@internal"
+      - "traefik.http.routers.traefik-rtr.middlewares=middlewares-basic-auth@file" # For Basic HTTP Authentication

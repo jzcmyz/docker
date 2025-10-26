@@ -14,12 +14,13 @@ services:
     # ports:
       #- "2375:2375"
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      # - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/run/podman/podman.sock:/var/run/docker.sock:ro"
     read_only: true
     tmpfs:
       - /run
     environment:
-      - LOG_LEVEL=warning # debug,info,notice,warning,err,crit,alert,emerg
+      - LOG_LEVEL=info # debug,info,notice,warning,err,crit,alert,emerg
       - ALLOW_START=1 # Portainer
       - ALLOW_STOP=1 # Portainer
       - ALLOW_RESTARTS=1 # Portainer

@@ -14,7 +14,6 @@ services:
     volumes:
       - $DOCKERDIR/appdata/overseerr:/config
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: $TZ
-    # DOCKER-LABELS-PLACEHOLDER
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}

@@ -10,7 +10,7 @@ services:
     volumes:
       - $DOCKERDIR/appdata/tautulli/config:/config
     ports:
-      - 8181:8181
+      - "8181:8181"
     restart: unless-stopped
     environment:
       TZ: $TZ
