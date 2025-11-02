@@ -10,11 +10,12 @@ services:
     networks:
       socket_proxy:
         ipv4_address: 192.168.91.254 # You can specify a static IP
-    # privileged: true # true for VM. False (default) for unprivileged LXC container.
+    privileged: true # true for VM. False (default) for unprivileged LXC container.
     # ports:
       #- "2375:2375"
     volumes:
       # - "/var/run/docker.sock:/var/run/docker.sock"
+      - /etc/localtime:/etc/localtime:ro
       - "/run/podman/podman.sock:/var/run/docker.sock:ro"
     read_only: true
     tmpfs:

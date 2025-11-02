@@ -2,11 +2,21 @@ services:
   profilarr:
     image: santiagosayshey/profilarr:latest # Use :beta for early access to new features
     container_name: profilarr
-    profiles: ["media", "starr", "all"]
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
+    profiles: ["profilarr", "all"]
     ports:
       - "6868:6868"
     volumes:
-      - $DOCKERDIR/appdata/profilarr:/config
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKERDIR}/appdata/profilarr:/config
     environment:
       TZ: ${TZ}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.profilarr.entrypoints=web-internal"
+      - "traefik.http.routers.profilarr.rule=Host(`profilarr.$DOMAINNAME_1`)"
+      - "traefik.http.routers.profilarr.service=profilarr"
+      - "traefik.http.routers.profilarr.tls.certresolver=dns-cloudflare"
+      - "traefik.http.services.profilarr.loadbalancer.server.port=6868"

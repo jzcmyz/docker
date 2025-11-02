@@ -1,8 +1,7 @@
 services:
-  # Traefik 3 - Reverse Proxy
   traefik:
+    image: traefik:3.5.4
     container_name: traefik
-    image: traefik:3.5.3
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped
@@ -10,21 +9,19 @@ services:
     depends_on:
       - socket-proxy
     networks:
+      socket_proxy:
       t3_proxy:
         ipv4_address: 192.168.90.254 # You can specify a static IP
-      socket_proxy:
-
     ports:
       - "80:80"
-      - "81:81"
       - "443:443"
-      - "444:444"
-      - "$TRAEFIK_PORT:9080"
+      - "8080:8080" # Traefik Dashboard
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - $DOCKERDIR/appdata/traefik/rules/$HOSTNAME:/rules 
       # - /var/run/docker.sock:/var/run/docker.sock:ro # Use Docker Socket Proxy instead for improved security
       - $DOCKERDIR/appdata/traefik/acme/acme.json:/acme.json 
-      - $DOCKERDIR/appdata/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - $DOCKERDIR/appdata/traefik/traefik.yml:/traefik.yml:ro
       - $DOCKERDIR/logs/$HOSTNAME/traefik:/logs
     environment:
       - TZ=${TZ}
@@ -36,7 +33,8 @@ services:
       - basic_auth_credentials
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik-rtr.entrypoints=websecure-internal,websecure-external"
-      - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$DOMAINNAME_1`)"
-      - "traefik.http.routers.traefik-rtr.service=api@internal"
-      - "traefik.http.routers.traefik-rtr.middlewares=middlewares-basic-auth@file" # For Basic HTTP Authentication
+      - "traefik.http.routers.traefik.entrypoints=websecure-internal"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.$DOMAINNAME_1`)"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.middlewares=middlewares-basic-auth@file" # For Basic HTTP Authentication

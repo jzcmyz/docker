@@ -5,7 +5,7 @@ services:
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped
-    profiles: ["portainer", "all"]
+    profiles: ["core", "portainer", "all"]
     networks:
       - default
       - socket_proxy
@@ -13,17 +13,18 @@ services:
     # command: -H unix:///var/run/docker.sock # Use Docker Socket Proxy instead for improved security
     command: -H tcp://socket-proxy:2375
     ports: 
-      - "9443:9443" 
+      - "9000:9000" 
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       # - /var/run/docker.sock:/var/run/docker.sock:ro # Use Docker Socket Proxy instead for improved security
       - $DOCKERDIR/appdata/portainer/data:/data
     environment:
       TZ: ${TZ}
-
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.portainer.entrypoints=web-internal"
       - "traefik.http.routers.portainer.rule=Host(`portainer.$DOMAINNAME_1`)"
       - "traefik.http.routers.portainer.service=portainer"
+      - "traefik.http.routers.portainer.tls=true"
       - "traefik.http.routers.portainer.tls.certresolver=dns-cloudflare"
-      - "traefik.http.services.portainer.loadbalancer.server.port=9443"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"

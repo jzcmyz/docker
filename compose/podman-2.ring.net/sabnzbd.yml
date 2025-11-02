@@ -1,21 +1,20 @@
-
 services:
   # SABnzbd - Binary newsgrabber (NZB downloader)
   # Disable SABNnzbd's built-in HTTPS support for traefik proxy to work
   sabnzbd:
     image: lscr.io/linuxserver/sabnzbd:latest
-    container_name: sabnzdb
+    container_name: sabnzbd
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped
-    profiles: ["media", "downloads", "all"]
+    profiles: ["sabnzbd","media", "all"]
     networks:
       - default
       - t3_proxy
     ports:
       - "8080:8080" 
     volumes:
-      - $DOCKERDIR/appdata/sabnzbd:/config
+      - ${DOCKERDIR}/appdata/sabnzbd:/config
       - media_movies_rw:/movies
       - media_tvshows_rw:/tv 
     environment:
@@ -25,11 +24,11 @@ services:
       UMASK_SET: 002
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.portainer.entrypoints=web-internal"
-      - "traefik.http.routers.portainer.rule=Host(`sabnzdb.$DOMAINNAME_1`)"
-      - "traefik.http.routers.portainer.service=sabnzbd"
-      - "traefik.http.routers.portainer.tls.certresolver=dns-cloudflare"
-      - "traefik.http.services.portainer.loadbalancer.server.port=8080"
+      - "traefik.http.routers.sabnzbd.entrypoints=web-internal"
+      - "traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.$DOMAINNAME_1`)"
+      - "traefik.http.routers.sabnzbd.service=sabnzbd"
+      - "traefik.http.routers.sabnzbd.tls.certresolver=dns-cloudflare"
+      - "traefik.http.services.sabnzbd.loadbalancer.server.port=8080"
 
 volumes:
   media_movies_rw:

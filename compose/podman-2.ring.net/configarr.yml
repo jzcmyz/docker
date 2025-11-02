@@ -7,6 +7,7 @@ services:
     environment:
       TZ: $TZ
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - $DOCKERDIR/appdata/configarr/config:/app/config # Contains the config.yml and secrets.yml
       - ./dockerrepos:/app/repos # Cache repositories
       #- ./custom/cfs:/app/cfs # Optional if custom formats locally provided

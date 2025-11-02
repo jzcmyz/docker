@@ -7,17 +7,25 @@ services:
       - no-new-privileges:true
     restart: "no"
     profiles: ["media", "starr", "all"]
-    networks:
-      - default
+    # networks:
+    #   - default
     ports:
       - "8989:8989"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - $DOCKERDIR/appdata/sonarr:/config
       - media_tvshows_rw:/tv
     environment:
       TZ: ${TZ}
       PUID: ${PUID}
       PGID: ${PGID}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.entrypoints=web-internal"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.$DOMAINNAME_1`)"
+      - "traefik.http.routers.sonarr.service=sonarr"
+      - "traefik.http.routers.sonarr.tls.certresolver=dns-cloudflare"
+      - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
 
 volumes:
   media_tvshows_rw:

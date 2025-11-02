@@ -4,15 +4,16 @@ services:
     container_name: tautulli
     security_opt:
       - no-new-privileges:true
-    profiles: ["media", "starr", "all"]
+    restart: unless-stopped
+    profiles: ["media", "all"]
     networks:
       - default
     volumes:
-      - $DOCKERDIR/appdata/tautulli/config:/config
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKERDIR}/appdata/tautulli/config:/config
     ports:
       - "8181:8181"
-    restart: unless-stopped
     environment:
-      TZ: $TZ
-      PUID: $PUID
-      PGID: $PGID
+      TZ: ${TZ}
+      PUID: ${PUID}
+      PGID: ${PGID}

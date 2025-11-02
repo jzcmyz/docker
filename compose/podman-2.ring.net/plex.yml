@@ -2,6 +2,8 @@ services:
   plex:
     image: lscr.io/linuxserver/plex:latest
     container_name: plex
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
     profiles: ["media", "plex", "all"]
     ports:
@@ -15,8 +17,8 @@ services:
       - "32413:32413/udp"
       - "32414:32414/udp"
     volumes:
-      - $DOCKERDIR/appdata/plex:/config
-      - $DOWNLOADSDIR:/data/downloads
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKERDIR}/appdata/plex:/config
       - media_movies_ro:/media/movies
       - media_tvshows_ro:/media/tvshows
       - /dev/shm:/data/transcode
@@ -26,8 +28,15 @@ services:
       PLEX_UID: ${PUID}
       PLEX_GID: ${PGID}
       TZ: ${TZ}
-      HOSTNAME: ${PLEX_SERVER_NAME}
+      #HOSTNAME: ${PLEX_SERVER_NAME}
       PLEX_CLAIM: claim-y4M9u2G4SDyrqEJGSr9x  # Get a claim token from https://www.plex.tv/claim/ 
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.plex.entrypoints=web-internal"
+      - "traefik.http.routers.plex.rule=Host(`plex.$DOMAINNAME_1`)"
+      - "traefik.http.routers.plex.service=plex"
+      - "traefik.http.routers.plex.tls.certresolver=dns-cloudflare"
+      - "traefik.http.services.plex.loadbalancer.server.port=32400"
 
 volumes:
   media_movies_ro:
@@ -44,20 +53,4 @@ volumes:
     driver_opts:
       type: "nfs"
       o: "nolock,soft,ro"
-      device: "192.168.1.112:/mnt/datastore/media/TV Shows"
-
-  media_movies_rw:
-    name: media_movies_rw
-    driver: local
-    driver_opts:
-      type: "nfs"
-      o: "nolock,soft,rw"
-      device: "192.168.1.112:/mnt/datastore/media/Movies"
-
-  media_tvshows_rw:
-    name: media_tvshows_rw
-    driver: local
-    driver_opts:
-      type: "nfs"
-      o: "nolock,soft,rw"
       device: "192.168.1.112:/mnt/datastore/media/TV Shows"
