@@ -1,0 +1,17 @@
+services:
+  huntarr:
+    image: huntarr/huntarr:latest
+    container_name: huntarr
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    profiles: ["media", "huntarr", "all"]
+    networks:
+      - t3_proxy
+    ports:
+      - "9705:9705"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKERDIR}/appdata/huntarr:/config
+    environment:
+      TZ: ${TZ}

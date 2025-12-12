@@ -1,0 +1,30 @@
+services:
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:latest 
+    security_opt:
+      - no-new-privileges:true
+    restart: always 
+    profiles: ["core", "portainer", "all"]
+    networks:
+      - socket_proxy
+      - t3_proxy
+    # command: -H unix:///var/run/docker.sock # Use Docker Socket Proxy instead for improved security
+    # Ensure that 'socket-proxy' is configured and running; see https://github.com/Tecnativa/docker-socket-proxy for setup instructions
+    command: -H tcp://socket-proxy:2375
+    ports: 
+      - "9000:9000" 
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      # - /var/run/docker.sock:/var/run/docker.sock:ro # Use Docker Socket Proxy instead for improved security
+      - $DOCKERDIR/appdata/portainer/data:/data
+    environment:
+      TZ: ${TZ}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.entrypoints=web-internal"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.$DOMAINNAME_1`)"
+      - "traefik.http.routers.portainer.service=portainer"
+      - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.routers.portainer.tls.certresolver=dns-cloudflare"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"

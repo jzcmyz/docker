@@ -1,0 +1,40 @@
+services:
+  traefik:
+    image: traefik:3.5.4
+    container_name: traefik
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    profiles: ["core", "traefik", "all"]
+    depends_on:
+      - socket-proxy
+    networks:
+      - socket_proxy
+      - t3_proxy
+        # ipv4_address: 192.168.90.254 # You can specify a static IP
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080" # Traefik Dashboard
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKERDIR}/appdata/traefik/rules/$HOSTNAME:/rules 
+      # - /var/run/docker.sock:/var/run/docker.sock:ro # Use Docker Socket Proxy instead for improved security
+      - ${DOCKERDIR}/appdata/traefik/acme/acme.json:/acme.json 
+      - ${DOCKERDIR}/appdata/traefik/traefik.yml:/traefik.yml:ro
+      - ${DOCKERDIR}/logs/$HOSTNAME/traefik:/logs
+    environment:
+      - TZ=${TZ}
+      - CF_DNS_API_TOKEN_FILE=/run/secrets/cf_dns_api_token    # Cloudflare DNS API token for DNS challenge
+      - HTPASSWD_FILE=/run/secrets/basic_auth_credentials # HTTP Basic Auth Credentials
+      - DOMAINNAME_1 # Passing the domain name to traefik container to be able to use the variable in rules. 
+    secrets:
+      - cf_dns_api_token
+      - basic_auth_credentials
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.entrypoints=websecure-internal"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAINNAME_1}`)"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.middlewares=middlewares-basic-auth@file" # For Basic HTTP Authentication

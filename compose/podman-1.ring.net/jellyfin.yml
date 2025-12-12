@@ -1,0 +1,46 @@
+services:
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    security_opt:
+      - no-new-privileges:true
+    restart: 'unless-stopped'
+    profiles: ["media", "jellyfin", "all"]
+    # network_mode: host
+    networks:
+      - t3_proxy
+    ports:
+      - 8096:8096/tcp
+      - 7359:7359/udp
+    environment:
+      TZ: ${TZ}
+      PUID: ${PUID}
+      PGID: ${PGID}
+      JELLYFIN_PublishedServerUrl: http://podman-1.ring.net #optional
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - $DOCKERDIR/appdata/jellyfin/config:/config
+      - media_movies_ro:/data/movies
+      - media_tvshows_ro:/data/tvshows
+    # Optional - may be necessary for docker healthcheck to pass if running in host network mode
+    # extra_hosts:
+    #   - 'host.docker.internal:host-gateway'
+
+
+
+volumes:
+  media_movies_ro:
+    name: media_movies_ro
+    driver: local
+    driver_opts:
+      type: "nfs"
+      o: "nolock,soft,ro"
+      device: "192.168.1.112:/mnt/datastore/media/Movies"
+
+  media_tvshows_ro:
+    name: media_tvshows_ro
+    driver: local
+    driver_opts:
+      type: "nfs"
+      o: "nolock,soft,ro"
+      device: "192.168.1.112:/mnt/datastore/media/TV Shows"

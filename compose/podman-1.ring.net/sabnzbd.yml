@@ -1,0 +1,49 @@
+services:
+  # SABnzbd - Binary newsgrabber (NZB downloader)
+  # Disable SABNnzbd's built-in HTTPS support for traefik proxy to work
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    profiles: ["sabnzbd","media", "all"]
+    networks:
+      - t3_proxy
+    ports:
+      - "8080:8080" 
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKERDIR}/appdata/sabnzbd:/config
+      - ${DOCKERDIR}/appdata/sabnzbd/Downloads:/downloads
+      - media_movies_rw:/movies
+      - media_tvshows_rw:/tv 
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+      UMASK_SET: 002
+    labels:
+      - "traefik.enable=false"
+      - "traefik.http.routers.sabnzbd.entrypoints=web-internal"
+      - "traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.${DOMAINNAME_1}`)"
+      - "traefik.http.routers.sabnzbd.service=sabnzbd"
+      - "traefik.http.routers.sabnzbd.tls.certresolver=dns-cloudflare"
+      - "traefik.http.services.sabnzbd.loadbalancer.server.port=8080" # Internal port of container
+
+volumes:
+  media_movies_rw:
+    name: media_movies_rw
+    driver: local
+    driver_opts:
+      type: "nfs"
+      o: "nolock,soft,rw"
+      device: "192.168.1.112:/mnt/datastore/media/Movies"
+
+  media_tvshows_rw:
+    name: media_tvshows_rw
+    driver: local
+    driver_opts:
+      type: "nfs"
+      o: "nolock,soft,rw"
+      device: "192.168.1.112:/mnt/datastore/media/TV Shows"

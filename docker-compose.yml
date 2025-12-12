@@ -1,0 +1,53 @@
+########################### NETWORKS
+networks:
+  default:
+    driver: bridge
+  socket_proxy:
+    name: socket_proxy
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.91.0/24
+  t3_proxy:
+    name: t3_proxy
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.90.0/24
+        
+########################### SECRETS
+secrets:
+  basic_auth_credentials:
+    file: ${DOCKERDIR}/secrets/basic_auth_credentials
+  cf_dns_api_token:
+    file: ${DOCKERDIR}/secrets/cf_dns_api_token
+
+include:
+  ########################### SERVICES
+  # HOSTNAME defined in .env file
+  #
+  # Core services
+  - compose/${HOSTNAME}/socket-proxy.yml
+  #- compose/${HOSTNAME}/traefik.yml
+  #- compose/${HOSTNAME}/npm.yml
+  - compose/${HOSTNAME}/portainer.yml
+
+  # Media services
+#  - compose/${HOSTNAME}/homepage.yml
+#  - compose/${HOSTNAME}/nfs.yml
+  - compose/${HOSTNAME}/plex.yml
+  - compose/${HOSTNAME}/jellyfin.yml
+  - compose/${HOSTNAME}/sonarr.yml
+  - compose/${HOSTNAME}/huntarr.yml
+  #- compose/${HOSTNAME}/dozzle.yml
+  - compose/${HOSTNAME}/sabnzbd.yml
+  - compose/${HOSTNAME}/radarr.yml
+  - compose/${HOSTNAME}/prowlarr.yml
+  - compose/${HOSTNAME}/tautulli.yml
+  - compose/${HOSTNAME}/overseerr.yml
+  - compose/${HOSTNAME}/profilarr.yml
+  #- compose/${HOSTNAME}/heimdall.yml
+  - compose/${HOSTNAME}/nzbget.yml
+  #
+  # - compose/${HOSTNAME}/netbootxyz.yml
+

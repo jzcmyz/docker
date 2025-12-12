@@ -1,0 +1,27 @@
+services:
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    profiles: ["media", "prowlarr", "all"]
+    networks:
+      - t3_proxy
+    ports:
+      - "9696:9696"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKERDIR}/appdata/prowlarr:/config
+    environment:
+      TZ: ${TZ}
+      PUID: ${PUID}
+      PGID: ${PGID}
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prowlarr.entrypoints=web-internal"
+      - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.$DOMAINNAME_1`)"
+      - "traefik.http.routers.prowlarr.service=prowlarr"
+      - "traefik.http.routers.prowlarr.tls.certresolver=dns-cloudflare"
+      - "traefik.http.services.prowlarr.loadbalancer.server.port=9696"

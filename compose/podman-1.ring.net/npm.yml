@@ -1,0 +1,26 @@
+services:
+  npm:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: npm
+    restart: unless-stopped
+    profiles: ["core", "npm", "all"]
+    security_opt:
+      - no-new-privileges:true
+    cap_add:
+      - NET_BIND_SERVICE
+    networks:
+      - socket_proxy
+      - t3_proxy
+
+    environment:
+      TZ: ${TZ}
+      PUID: ${PUID}
+      PGID: ${PGID}
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKERDIR}/appdata/npm/letsencrypt:/etc/letsencrypt
+      - ${DOCKERDIR}/appdata/npm/data:/data
