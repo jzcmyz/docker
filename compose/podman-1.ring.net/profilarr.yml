@@ -17,8 +17,8 @@ services:
       TZ: ${TZ}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.profilarr.entrypoints=web-internal"
-      - "traefik.http.routers.profilarr.rule=Host(`profilarr.$DOMAINNAME_1`)"
-      - "traefik.http.routers.profilarr.service=profilarr"
-      - "traefik.http.routers.profilarr.tls.certresolver=dns-cloudflare"
+      - "traefik.http.routers.profilarr.rule=Host(`profilarr.${DOMAINNAME_1}`)"
+      - "traefik.http.routers.profilarr.entrypoints=websecure-internal"
+      - "traefik.http.routers.profilarr.tls=true"
       - "traefik.http.services.profilarr.loadbalancer.server.port=6868"
+      - "traefik.docker.network=t3_proxy"

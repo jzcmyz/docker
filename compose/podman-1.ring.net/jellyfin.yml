@@ -25,8 +25,13 @@ services:
     # Optional - may be necessary for docker healthcheck to pass if running in host network mode
     # extra_hosts:
     #   - 'host.docker.internal:host-gateway'
-
-
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAINNAME_1}`)"
+      - "traefik.http.routers.jellyfin.entrypoints=websecure-internal"
+      - "traefik.http.routers.jellyfin.tls=true"
+      - "traefik.http.services.r.loadbalancer.server.port=8096"
+      - "traefik.docker.network=t3_proxy"
 
 volumes:
   media_movies_ro:

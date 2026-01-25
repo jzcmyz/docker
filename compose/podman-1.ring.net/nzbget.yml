@@ -1,6 +1,6 @@
 services:
   nzbget:
-    image: nzbgetcom/nzbget:latest
+    image: lscr.io/linuxserver/nzbget:latest
     container_name: nzbget
     security_opt:
       - no-new-privileges:true
@@ -13,21 +13,20 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${DOCKERDIR}/appdata/nzbget:/config
-      - media_movies_rw:/movies
-      - media_tvshows_rw:/tv 
+      - ${DOCKERDIR}/appdata/nzbget/data:/data # for completed downloads and intermediate files
     environment:
+      TZ: ${TZ}
       PUID: ${PUID}
       PGID: ${PGID}
-      TZ: ${TZ}
       NZBGET_USER: nzbget     #optional
       NZBGET_PASS: tegbzn6789 #optional
     labels:
-      - "traefik.enable=false"
-      - "traefik.http.routers.nzbget.entrypoints=web-internal"
-      - "traefik.http.routers.nzbget.rule=Host(`nzbget.$DOMAINNAME_1`)"
-      - "traefik.http.routers.nzbget.service=nzbget"
-      - "traefik.http.routers.nzbget.tls.certresolver=dns-cloudflare"
+      - "traefik.enable=true"
+      - "traefik.http.routers.nzbget.rule=Host(`nzbget.${DOMAINNAME_1}`)"
+      - "traefik.http.routers.nzbget.entrypoints=websecure-internal"
+      - "traefik.http.routers.nzbget.tls=true"
       - "traefik.http.services.nzbget.loadbalancer.server.port=6789"
+      - "traefik.docker.network=t3_proxy"      
 
 volumes:
   media_movies_rw:
@@ -46,6 +45,3 @@ volumes:
       o: "nolock,soft,rw"
       device: "192.168.1.112:/mnt/datastore/media/TV Shows"
 
-# networks:
-#   t3_proxy:
-#     external: true
