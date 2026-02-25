@@ -21,6 +21,14 @@ secrets:
     file: ${DOCKERDIR}/secrets/basic_auth_credentials
   cf_dns_api_token:
     file: ${DOCKERDIR}/secrets/cf_dns_api_token
+  postgres_default_password:
+    file: ${DOCKERDIR}/secrets/postgres_default_password
+  authentik_postgresql_user:
+    file: ${DOCKERDIR}/secrets/authentik_postgresql_user
+  authentik_postgresql_password:
+    file: ${DOCKERDIR}/secrets/authentik_postgresql_password
+  authentik_secret_key:
+    file: ${DOCKERDIR}/secrets/authentik_secret_key
 
 include:
     ########################### SERVICES
@@ -30,6 +38,11 @@ include:
   - compose/${HOSTNAME}/socket-proxy.yml
   - compose/${HOSTNAME}/traefik.yml
   - compose/${HOSTNAME}/portainer.yml
+  - compose/${HOSTNAME}/postgresql.yml 
+  - compose/${HOSTNAME}/authentik.yml 
+  - compose/${HOSTNAME}/authentik-worker.yml
+  - compose/${HOSTNAME}/wg-easy.yml
+  #   #
 
   # Media services
 #   - compose/${HOSTNAME}/plex.yml

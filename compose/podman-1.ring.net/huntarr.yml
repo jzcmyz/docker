@@ -15,3 +15,10 @@ services:
       - ${DOCKERDIR}/appdata/huntarr:/config
     environment:
       TZ: ${TZ}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.huntarr.entrypoints=websecure-internal"
+      - "traefik.http.routers.huntarr.rule=Host(`huntarr.jzcmyz.com`)"
+      - "traefik.http.routers.huntarr.tls=true"
+      - "traefik.http.services.huntarr.loadbalancer.server.port=9705"
+      - "traefik.docker.network=t3_proxy"

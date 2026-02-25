@@ -22,8 +22,8 @@ services:
       NZBGET_PASS: tegbzn6789 #optional
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.nzbget.rule=Host(`nzbget.${DOMAINNAME_1}`)"
       - "traefik.http.routers.nzbget.entrypoints=websecure-internal"
+      - "traefik.http.routers.nzbget.rule=Host(`nzbget.${DOMAINNAME_1}`)"
       - "traefik.http.routers.nzbget.tls=true"
       - "traefik.http.services.nzbget.loadbalancer.server.port=6789"
       - "traefik.docker.network=t3_proxy"      

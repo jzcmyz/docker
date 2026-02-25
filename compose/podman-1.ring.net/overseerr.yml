@@ -16,3 +16,10 @@ services:
       PUID: ${PUID}
       PGID: ${PGID}
       TZ: ${TZ}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.overseerr.entrypoints=websecure-internal"
+      - "traefik.http.routers.overseerr.rule=Host(`overseerr.jzcmyz.com`)"
+      - "traefik.http.routers.overseerr.tls=true"
+      - "traefik.http.services.overseerr.loadbalancer.server.port=5055"
+      - "traefik.docker.network=t3_proxy"

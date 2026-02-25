@@ -13,16 +13,16 @@ services:
     # Ensure that 'socket-proxy' is configured and running; see https://github.com/Tecnativa/docker-socket-proxy for setup instructions
     command: -H tcp://socket-proxy:2375
     ports: 
-      - "9000:9000" 
+      - "9001:9000"  # Portainer's default port is 9000, but we map it to 9001 to avoid conflicts with other services like Authentik. Adjust as needed.
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - $DOCKERDIR/appdata/portainer/data:/data
+      - ${DOCKERDIR}/appdata/portainer/data:/data
     environment:
       TZ: ${TZ}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.portainer.rule=Host(`portainer.${DOMAINNAME_1}`)"
       - "traefik.http.routers.portainer.entrypoints=websecure-internal"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.${DOMAINNAME_1}`)"
       - "traefik.http.routers.portainer.tls=true"
-      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9001"
       - "traefik.docker.network=t3_proxy"

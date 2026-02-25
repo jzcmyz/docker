@@ -1,0 +1,52 @@
+services:
+  authentik:
+    image: ghcr.io/goauthentik/server:${AUTHENTIK_VERSION_PIN_DEFAULT}
+    container_name: authentik
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    profiles: ["core", "all"]
+    networks:
+      - default
+      - t3_proxy
+    ports:
+      - "9000:9000" # Changed to 9001 to avoid conflict with other services (eg Portainer)
+    #  - "9443:9443" # HTTPS
+    command: server
+    user: ${PUID}:${PGID}
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    environment:
+      - AUTHENTIK_POSTGRESQL__HOST
+      - AUTHENTIK_POSTGRESQL__NAME
+      - AUTHENTIK_POSTGRESQL__USER
+      - AUTHENTIK_POSTGRESQL__PASSWORD
+      - AUTHENTIK_SECRET_KEY
+      - AUTHENTIK_LOG_LEVEL=info # debug, info, warning, error, trace
+      - AUTHENTIK_DISABLE_STARTUP_ANALYTICS=true
+      - AUTHENTIK_DISABLE_UPDATE_CHECK=false
+      - AUTHENTIK_ERROR_REPORTING__ENABLED=false
+    secrets:
+      - authentik_postgresql_user
+      - authentik_postgresql_password
+      - authentik_secret_key
+    volumes:
+      - ${DOCKERDIR}/appdata/authentik/media:/media
+      - ${DOCKERDIR}/appdata/authentik/custom-templates:/templates
+      # - $DOCKERDIR/appdata/authentik/geoip/data:/geoip # requires geoipupdate
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.authentik-rtr.entrypoints=websecure-internal"
+      - "traefik.http.routers.authentik-rtr.rule=Host(`authentik.${DOMAINNAME_1}`)"
+      - "traefik.http.routers.authentik-rtr.tls=true"
+      #- "traefik.http.routers.authentik-rtr.service=authentik-svc"
+      - "traefik.http.services.authentik-svc.loadbalancer.server.port=9000"
+      #- "traefik.http.routers.authentik-rtr.middlewares=chain-no-auth@file"
+      # Catch any subdomain using individual application forward authentication
+      ###- "traefik.http.routers.authentik-output-rtr.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.${DOMAINNAME_1}`) && PathPrefix(`/outpost.goauthentik.io/`)"
+      - "traefik.docker.network=t3_proxy"
+
+
+
