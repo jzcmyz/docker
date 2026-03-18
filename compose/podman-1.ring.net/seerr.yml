@@ -1,0 +1,27 @@
+services:
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
+    container_name: seerr
+    user: ${PUID}:${PGID}
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    profiles: ["media", "seerr", "all"]
+    networks:
+      - t3_proxy
+    ports:
+      - "5055:5055"
+    volumes:
+      - ${DOCKERDIR}/appdata/seerr:/app/config
+    environment:
+      TZ: ${TZ}
+      PUID: ${PUID}
+      PGID: ${PGID}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.seerr.entrypoints=websecure-internal"
+      - "traefik.http.routers.seerr.rule=Host(`seerr.jzcmyz.com`)"
+      - "traefik.http.routers.seerr.tls=true"
+      - "traefik.http.services.seerr.loadbalancer.server.port=5055"
+      - "traefik.docker.network=t3_proxy"

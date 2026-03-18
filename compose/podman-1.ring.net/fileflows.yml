@@ -1,0 +1,37 @@
+services:
+  fileflows:
+    image: revenz/fileflows
+    container_name: fileflows
+    # security_opt:
+    #   - no-new-privileges:true
+    restart: unless-stopped
+    profiles: ["media", "fileflows", "all"]
+    networks:
+      - t3_proxy
+    ports:
+      - "19200:5000"
+    volumes:
+      - ${DOCKERDIR}/appdata/fileflows:/app/Data
+      - ${DOCKERDIR}/appdata/fileflows/temp:/temp
+      - ${DOCKERDIR}/logs/${HOSTNAME}/fileflows/logs:/app/Logs
+      - media_tvshows_rw:/shows # Example: TV shows volume. Adjust this path or add more volumes for other media types as needed.
+    environment:
+      TZ: ${TZ}
+      PUID: ${PUID}
+      PGID: ${PGID}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fileflows.entrypoints=websecure-internal"
+      - "traefik.http.routers.fileflows.rule=Host(`fileflows.jzcmyz.com`)"
+      - "traefik.http.routers.fileflows.tls=true"
+      - "traefik.http.services.fileflows.loadbalancer.server.port=5000"
+      - "traefik.docker.network=t3_proxy"
+
+volumes:
+  media_tvshows_rw:
+    name: media_tvshows_rw
+    driver: local
+    driver_opts:
+      type: "nfs"
+      o: "nolock,soft,rw"
+      device: "192.168.1.112:/mnt/datastore/media/TV Shows"
